@@ -39,36 +39,38 @@
 				<button class="btn btn-primary" onclick="searchBtn()" type="button" id="button-addon2">Search</button>
 			</div>
 			<hr>
+			
 			<div class="bs-component">
-				<table class="table table-hover">
+				<table class="table table-hover text-center">
 					<thead>
-						<tr>
-							<th scope="col">Type</th>
-							<th scope="col">Column heading</th>
-							<th scope="col">Column heading</th>
-							<th scope="col">Column heading</th>
+						<tr class="table-primary">
+							<th scope="col" style="width: 50%">제목</th>
+							<th scope="col" style="width: 25%">가격</th>
+							<th scope="col" style="width: 10%">출처</th>
+							<th scope="col" style="width: 10%">바로가기</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="table-active">
-							<th scope="row">Active</th>
-							<td>Column content</td>
-							<td>Column content</td>
-							<td>Column content</td>
+					<tbody id="tableBody">
+						<tr>
+							<td colspan="4"> 검색결과가 없습니다. </td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<div class="mt-5" style="text-align: center;">
-				<button type="button" class="btn btn-primary btn-lg" onclick="location.href='/'" style="cursor: pointer;">more</button>
+				<button type="button" class="btn btn-primary btn-lg" onclick="location.href='/'" >more</button>
 			</div>
 		</div>
 	</div>
 </body>
 
 <script type="text/javascript">
+	var tr_HTML="";
+	
 	function searchBtn() {
 		var  searchVal = $("#searchWord").val();
+		tr_HTML="";
+		console.log("load Joongo");
 		$.ajax({
 			url : "/search/getContent",
 			type : 'POST',
@@ -77,12 +79,70 @@
 				searchWord : searchVal
 			},
 			success : function(data) {
-				console.log(data);
+				tr_HTML += writeTr_Jongo(data);
 			},
 			error : function(jqXHR, status, e) {
 				console.log(status + " : " + e);
 			}
 		});
+		
+		console.log("load Daangn");
+		$.ajax({
+			url : "/search/getContent2",
+			type : 'POST',
+			async : false,
+			data : {
+				searchWord : searchVal
+			},
+			success : function(data) {
+				tr_HTML += writeTr_Dang(data);
+				$("#tableBody").empty().append(tr_HTML);
+			},
+			error : function(jqXHR, status, e) {
+				console.log(status + " : " + e);
+			}
+		});
+	}
+	
+	
+	function writeTr_Jongo(data) {
+		
+		var tbody = $("#tableBody");		
+		var tr_HTML="";
+		
+		for (var i = 0; i < data.length; i++) {
+			var url = "https://web.joongna.com/product/detail/"+data[i].seq;
+			var encodeUrl = encodeURI(url);
+			var price = data[i].price.toLocaleString('ko-KR');
+			
+			tr_HTML +="\n";
+			tr_HTML +="<tr class='light'>";
+			tr_HTML +=	"<td style='text-align: start;'>"+data[i].title+"</td>";
+			tr_HTML +=	"<td>"+price+"원</td>";
+			tr_HTML +=	"<td>중고나라</td>";
+			tr_HTML +=	"<td style='cursor: pointer;' onclick=window.open('"+encodeUrl+"')>바로가기</td>";
+			tr_HTML +="</tr>";
+		}
+		return tr_HTML;
+	}
+	
+	function writeTr_Dang(data) {
+		var tr_HTML="";
+		
+		for (var i = 0; i < data.length; i++) {
+			tr_HTML +="\n";
+			tr_HTML +="<tr class='light'>";
+			tr_HTML +=	"<td style='text-align: start;'>"+data[i].title+"</td>";
+			tr_HTML +=	"<td>"+data[i].price+"</td>";
+			tr_HTML +=	"<td>당근</td>";
+			tr_HTML +=	"<td style='cursor: pointer;' onclick=window.open('"+data[i].urlLink+"')>바로가기</td>";
+			tr_HTML +="</tr>";
+		}
+		return tr_HTML;
+	}
+	
+	function writeTable_Jongo() {
+		
 	}
 </script>
 </html>

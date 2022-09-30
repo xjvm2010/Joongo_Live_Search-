@@ -13,7 +13,7 @@ public class SearchOption {
 	private String categoryName1;
 	private String categoryName2;
 	private String categoryName3;
-	private int maxPrice = 0;
+	private int maxPrice = 2000000000;
 	private int minPrice = 0;
 	private int categoryDepth = 0;
 	private int categorySeq = 0;
