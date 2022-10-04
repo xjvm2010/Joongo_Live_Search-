@@ -6,9 +6,9 @@ public class SearchOption {
 	private int startIndex = 1;
 	private String searchStartTime;
 	private Map<String, Object> filter;
-	private int searchQuantity =10;
-	private int quantity =10;
-	private int firstQuantity =10;
+	private int searchQuantity =6;
+	private int quantity =6;
+	private int firstQuantity =6;
 	private String searchWord;
 	private String categoryName1;
 	private String categoryName2;

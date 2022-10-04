@@ -1,7 +1,6 @@
 package com.jglive.www.util;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jglive.www.vo.SearchOption;
 
-public class Crawling {
+public class JonngoCrawling {
 	
 	public List<Map<String, Object>> getContent_jn(SearchOption searchOption){
 		final String URL = "https://search-api.joongna.com/v25/list/category";
