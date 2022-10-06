@@ -3,6 +3,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.core.Authentication" %>
+ <%
+ //- 인증하지 않은 상태 : anonymousUser란 문자열이 있는 String 객체 return- 인증에 성공한 상태 : 로그인한 사용자의 정보가 담긴 Object 객체 return
+	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	String name = "";
+	if(auth.getPrincipal() != null) {
+		name = auth.getName();
+	}
+%>
 
 <!DOCTYPE html>
 <html>
@@ -40,8 +51,14 @@
 			<div>
 				<button id="btnGroupDrop1" type="button" class="btn btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">회원</button>
 				<div class="dropdown-menu" aria-labelledby="btnGroupDrop1" data-popper-placement="bottom-end">
-					<a class="dropdown-item" href="#">Dropdown link</a>
-					<a class="dropdown-item" href="#">Dropdown link</a>
+					<sec:authorize access="isAnonymous()">
+						<a class="dropdown-item" href="<c:url value="/userLogin"/>">Login</a>
+					 </sec:authorize>
+					 <sec:authorize access="isAuthenticated()">
+					 	<a class="dropdown-item"/><%=name %> 님</a>
+					 	<a class="dropdown-item" href="<c:url value="/logout"/>">Logout</a>
+					 </sec:authorize>
+					<a class="dropdown-item" href="/userSign">Join</a>
 				</div>
 			</div>
 		</div>
@@ -52,7 +69,7 @@
 			</div>
 			<div class=" mb-2" style="display: flex; justify-content: space-between;">
 				<button type="button" class="btn btn-primary" onclick="liveSearchCall()">라이브  서치</button>
-				<button type="button" class="btn btn-primary" onclick="newItemSearch()">newItemSearch</button>
+				<button type="button" class="btn btn-primary" onclick="webSocket.sendChat(searchVal,'testData')">testPop</button>
 			</div>
 
 			<hr>	
@@ -77,7 +94,7 @@
 			</div>
 			<div class="mt-3 mb-3" style="text-align: center;">
 				<button type="button" class="btn btn-primary btn-lg"
-					onclick="moreItem()">more</button>
+					onclick="moreContent()">more</button>
 			</div>
 		</div>
 	</div>
@@ -88,28 +105,18 @@
 	var searchVal = "";
 	// 페이징 시작값;
 	var startIndex = 1;
-	//알림 객체
+	//알림 객채
 	var notification;
-	//data 객체
-	var oldItem;
 	
-	//라이브서치 요청
+	
 	function liveSearchCall() {
 		searchVal = $("#searchWord").val();
+		
 		if(ntfcPermission()){
 			webSocket.init({ url: '<c:url value="/live"/>' });
+			/* webSocket.sendEnter(searchVal); */
 		}
 	}
-	
-	var playliveSearch = setInterval(function() {
-		console.log("계속 찾는중..")
-	}, 5000);
-	
-	function liveSearchStop(){
-		console.log("라이브 검색 중단")
-		clearInterval(playAlert);
-	}
-	//소켓 클래스
 	var webSocket = {
 		//시작함수
 		init : function(param) {
@@ -155,9 +162,6 @@
 			//소캣생성 후 처리
 			this._socket.onopen = function(evt) {
 				console.log("onopen : " + evt);
-				
-				//세션생성
-				webSocket.sendEnter(searchVal);
 			};
 
 			//메세지를 받고나서  처리
@@ -205,8 +209,7 @@
 
 		return true;
 	}
-	
-	//윈도우 메세지 팝업
+
 	function notificationFn(msg) {
 
 		// 데스크탑 알림
@@ -222,21 +225,18 @@
 		}, 5000);
 
 	}
-	
-	//검색 요청
+
 	function searchBtn() {
 		searchVal = $("#searchWord").val();
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getItem",
+			url : "/search/getContent",
 			type : 'POST',
 			async : false,
 			data : {
 				searchWord : searchVal
 			},
-			
 			success : function(data) {
-				oldItem = data;
 				tr_HTML += writeTr_Jongo(data);
 				$("#tableBody").empty().append(tr_HTML);
 			},
@@ -245,8 +245,7 @@
 			}
 		});
 	}
-	
-	//컨텐츠 추가 화면 그리기
+
 	function writeTr_Jongo(data) {
 		var tbody = $("#tableBody");
 		tr_HTML = "";
@@ -258,7 +257,6 @@
 			if (!location) {
 				location = "미기재";
 			}
-			//seq값이 있는지 검사
 			if (data[i].hasOwnProperty('seq')) {
 				var url = "https://web.joongna.com/product/detail/"
 						+ data[i].seq;
@@ -283,13 +281,12 @@
 		}
 		return tr_HTML;
 	}
-	
-	//더보기
-	function moreItem() {
+
+	function moreContent() {
 		startIndex++;
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getMoreItem",
+			url : "/search/getMoreContent",
 			type : 'POST',
 			async : false,
 			data : {
@@ -305,6 +302,8 @@
 			}
 		});
 	}
+</script>
+</html>}
 	
 	function newItemSearch() {
 		tr_HTML = "";
