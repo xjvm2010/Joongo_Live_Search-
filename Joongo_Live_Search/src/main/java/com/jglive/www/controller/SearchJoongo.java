@@ -3,44 +3,75 @@ package com.jglive.www.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.jglive.www.service.SearchHistory;
 import com.jglive.www.util.JonngoCrawling;
-import com.jglive.www.util.DaangnCrawling;
 import com.jglive.www.vo.SearchOption;
 
 @Controller
 @RequestMapping("/search")
 public class SearchJoongo {
+
+	@Autowired
+	JonngoCrawling joongo;
+
+	@Autowired
+	SearchHistory searchHis;
 	
-	@RequestMapping("/getContent")
+	
+	@RequestMapping("/getItem")
 	@ResponseBody
-	public List<Map<String, Object>> getContent(SearchOption searchOption){
-		DaangnCrawling dang = new DaangnCrawling();
-		JonngoCrawling joongo = new JonngoCrawling();
+	public List<Map<String, Object>> getItem(SearchOption searchOption, HttpSession session) {
+		// 검색기록 저장
+		searchOption.setUser_seq(0);
+		searchHis.SearchRecord(searchOption);
+
 		List<Map<String, Object>> result;
-		result = joongo.getContent_jn(searchOption);
-		result.addAll(dang.getContent_dg(searchOption));
-		
+		joongo.setSearchOption(searchOption);
+		result = joongo.getItems();
+		session.setAttribute("oldItemList", result);
+
 		return result;
 	}
-	
-	@RequestMapping("/getMoreContent")
+
+	@RequestMapping("/getMoreItem")
 	@ResponseBody
-	public List<Map<String, Object>> getMoreContent(SearchOption searchOption){
-		DaangnCrawling dang = new DaangnCrawling();
-		JonngoCrawling joongo = new JonngoCrawling();
-		
+	public List<Map<String, Object>> getMoreItem(SearchOption searchOption) {
+
 		searchOption.setQuantity(12);
 		searchOption.setFirstQuantity(12);
 		searchOption.setSearchQuantity(12);
-		
+
 		List<Map<String, Object>> result;
-		result = joongo.getContent_jn(searchOption);
-		result.addAll(dang.getContent_dg(searchOption));
-		
+		joongo.setSearchOption(searchOption);
+
+		result = joongo.getItems();
+
 		return result;
+	}
+
+	@RequestMapping("/newItemSearch")
+	@ResponseBody
+	public List<Map<String, Object>> newItemSearch(SearchOption searchOption, HttpSession session) {
+
+		List<Map<String, Object>> oldItemList = (List<Map<String, Object>>) session.getAttribute("oldItemList");
+		searchOption.setQuantity(6);
+		searchOption.setFirstQuantity(6);
+		searchOption.setSearchQuantity(6);
+
+		joongo.setSearchOption(searchOption);
+
+		List<Map<String, Object>> newItemList = joongo.getNewItem(oldItemList);
+		if (newItemList.size() > 0) {
+			session.setAttribute("oldItemList", newItemList);
+		}
+
+		return newItemList;
 	}
 }

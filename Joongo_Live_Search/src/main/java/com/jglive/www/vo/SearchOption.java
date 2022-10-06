@@ -3,6 +3,7 @@ package com.jglive.www.vo;
 import java.util.Map;
 
 public class SearchOption {
+	private int user_seq;
 	private int startIndex = 1;
 	private String searchStartTime;
 	private Map<String, Object> filter;
@@ -20,6 +21,12 @@ public class SearchOption {
 	
 	
 	
+	public int getUser_seq() {
+		return user_seq;
+	}
+	public void setUser_seq(int user_seq) {
+		this.user_seq = user_seq;
+	}
 	public int getMaxPrice() {
 		return maxPrice;
 	}

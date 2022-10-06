@@ -52,7 +52,7 @@
 			</div>
 			<div class=" mb-2" style="display: flex; justify-content: space-between;">
 				<button type="button" class="btn btn-primary" onclick="liveSearchCall()">라이브  서치</button>
-				<button type="button" class="btn btn-primary" onclick="webSocket.sendChat(searchVal,'testData')">testPop</button>
+				<button type="button" class="btn btn-primary" onclick="newItemSearch()">newItemSearch</button>
 			</div>
 
 			<hr>	
@@ -77,7 +77,7 @@
 			</div>
 			<div class="mt-3 mb-3" style="text-align: center;">
 				<button type="button" class="btn btn-primary btn-lg"
-					onclick="moreContent()">more</button>
+					onclick="moreItem()">more</button>
 			</div>
 		</div>
 	</div>
@@ -88,18 +88,28 @@
 	var searchVal = "";
 	// 페이징 시작값;
 	var startIndex = 1;
-	//알림 객채
+	//알림 객체
 	var notification;
+	//data 객체
+	var oldItem;
 	
-	
+	//라이브서치 요청
 	function liveSearchCall() {
 		searchVal = $("#searchWord").val();
-		
 		if(ntfcPermission()){
 			webSocket.init({ url: '<c:url value="/live"/>' });
-			/* webSocket.sendEnter(searchVal); */
 		}
 	}
+	
+	var playliveSearch = setInterval(function() {
+		console.log("계속 찾는중..")
+	}, 5000);
+	
+	function liveSearchStop(){
+		console.log("라이브 검색 중단")
+		clearInterval(playAlert);
+	}
+	//소켓 클래스
 	var webSocket = {
 		//시작함수
 		init : function(param) {
@@ -145,6 +155,9 @@
 			//소캣생성 후 처리
 			this._socket.onopen = function(evt) {
 				console.log("onopen : " + evt);
+				
+				//세션생성
+				webSocket.sendEnter(searchVal);
 			};
 
 			//메세지를 받고나서  처리
@@ -192,7 +205,8 @@
 
 		return true;
 	}
-
+	
+	//윈도우 메세지 팝업
 	function notificationFn(msg) {
 
 		// 데스크탑 알림
@@ -208,18 +222,21 @@
 		}, 5000);
 
 	}
-
+	
+	//검색 요청
 	function searchBtn() {
 		searchVal = $("#searchWord").val();
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getContent",
+			url : "/search/getItem",
 			type : 'POST',
 			async : false,
 			data : {
 				searchWord : searchVal
 			},
+			
 			success : function(data) {
+				oldItem = data;
 				tr_HTML += writeTr_Jongo(data);
 				$("#tableBody").empty().append(tr_HTML);
 			},
@@ -228,7 +245,8 @@
 			}
 		});
 	}
-
+	
+	//컨텐츠 추가 화면 그리기
 	function writeTr_Jongo(data) {
 		var tbody = $("#tableBody");
 		tr_HTML = "";
@@ -240,6 +258,7 @@
 			if (!location) {
 				location = "미기재";
 			}
+			//seq값이 있는지 검사
 			if (data[i].hasOwnProperty('seq')) {
 				var url = "https://web.joongna.com/product/detail/"
 						+ data[i].seq;
@@ -264,12 +283,13 @@
 		}
 		return tr_HTML;
 	}
-
-	function moreContent() {
+	
+	//더보기
+	function moreItem() {
 		startIndex++;
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getMoreContent",
+			url : "/search/getMoreItem",
 			type : 'POST',
 			async : false,
 			data : {
@@ -285,5 +305,32 @@
 			}
 		});
 	}
+	
+	function newItemSearch() {
+		tr_HTML = "";
+		console.log(searchVal);
+		$.ajax({
+			url : "/search/newItemSearch",
+			type : 'POST',
+			async : false,
+			data : {
+				searchWord : searchVal,
+				startIndex : 1
+			},
+			success : function(data) {
+				if(data.length > 0){
+					sendChat(searchVal, data);
+				}
+				else{
+					return false
+				}
+			},
+			error : function(jqXHR, status, e) {
+				console.log(status + " : " + jqXHR.status);
+				console.log(jqXHR.responseText);
+			}
+		});
+	}
+	
 </script>
 </html>
