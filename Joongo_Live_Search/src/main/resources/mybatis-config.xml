@@ -5,9 +5,12 @@
 <configuration>
 
 	<typeAliases>
+		<typeAlias type="com.jglive.www.vo.MemberVO" alias="MemberVO"/>
+		<typeAlias type="com.jglive.www.vo.CustomUserDetails" alias="customUser"/>
 	</typeAliases>
 	
 	<mappers>
+		<mapper resource="mappers\memberMapper.xml" />
 	</mappers>
 	
 </configuration>

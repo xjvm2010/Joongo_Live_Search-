@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="memberMapper">
+
+	<!-- 회원가입  작성 -->
+	<insert id="register">
+	    INSERT INTO jongo_live_member (	
+	    			id 
+	   				, password 
+	   				, name
+	   				, gender
+	   				, email
+	   				, birth
+	   				, address )
+	   
+	    	VALUES(    
+		    		#{id} 
+		             , #{pw}
+		             , #{name}
+		             , #{gender}
+		             , #{email}
+		             , #{birth}
+		             , #{address} )
+    </insert>
+    
+ 	<select id="loadUserByUserId" resultType="customUser">
+		SELECT
+			*
+		FROM
+			jongo_live_member
+		WHERE 
+			id = #{id}
+	</select>
+
+</mapper>

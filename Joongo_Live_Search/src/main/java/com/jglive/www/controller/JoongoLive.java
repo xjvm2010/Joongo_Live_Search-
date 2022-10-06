@@ -22,11 +22,21 @@ public class JoongoLive {
 		mv.setViewName("userSign");
 		return mv;
 	}
+	
 	@RequestMapping("/userInfo")
 	public ModelAndView userInfo() {
 		ModelAndView mv = new ModelAndView();
 		
 		mv.setViewName("userInfo");
+		return mv;
+	}
+	
+	@RequestMapping("/userLogin")
+	public ModelAndView userLogin() {
+		
+		ModelAndView mv = new ModelAndView();
+		
+		mv.setViewName("userLogin");
 		return mv;
 	}
 	
