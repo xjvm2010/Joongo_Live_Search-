@@ -80,10 +80,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     	auth.authenticationProvider(UserAuthProvider);
     }
     
-    @Bean
-    public AuthenticationSuccessHandler LoginSuccessHandler() {
-    	return new LoginSuccessHandler();
-    }
+//    @Bean
+//    public AuthenticationSuccessHandler LoginSuccessHandler() {
+//    	return new LoginSuccessHandler();
+//    }
     
 
 }

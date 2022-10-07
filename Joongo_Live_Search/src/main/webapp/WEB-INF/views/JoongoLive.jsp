@@ -55,7 +55,7 @@
 						<a class="dropdown-item" href="<c:url value="/userLogin"/>">Login</a>
 					 </sec:authorize>
 					 <sec:authorize access="isAuthenticated()">
-					 	<a class="dropdown-item"/><%=name %> 님</a>
+					 	<a class="dropdown-item"><%=name %> 님</a>
 					 	<a class="dropdown-item" href="<c:url value="/logout"/>">Logout</a>
 					 	<a class="dropdown-item" href="<c:url value="/userInfo"/>">History</a>
 					 </sec:authorize>
@@ -65,18 +65,23 @@
 		</div>
 		<div class="row mt-5 pt-2">
 			<div class="input-group mb-1">
-				<input type="text" class="form-control" id="searchWord" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
-				<button class="btn btn-primary" onclick="searchBtn()" type="button" id="button-addon2">Search</button>
+				<input type="text" class="form-control sContent" id="searchWord" placeholder="검색어를 입력하세요.">
+				<button class="btn btn-primary sContent" onclick="searchBtn()" type="button" id="button-addon2">검색</button>
 			</div>
 			<div class=" mb-2" style="display: flex; justify-content: space-between;">
-				<button type="button" class="btn btn-primary" onclick="liveSearchCall()">라이브  서치</button>
-				<button type="button" class="btn btn-primary" onclick="webSocket.sendChat(searchVal,'testData')">testPop</button>
+				<div>
+					<button id="liveSearchCall" type="button" class="btn btn-primary" onclick="liveSearchCall()">라이브 검색 시작</button>
+					<button id="liveSearchStop" type="button" class="btn btn-primary" onclick="liveSearchStop()" style="display: none">라이브 검색 중단</button>
+				</div>
+				<!-- <div>
+					<button id="toggleOptionBtn" type="button" class="btn btn-primary">필터 보기</button>
+				</div> -->
 			</div>
-
 			<hr>	
-
 			<div class="bs-component">
+				
 				<table class="table table-hover text-center">
+					
 					<thead>
 						<tr class="table-primary">
 							<th scope="col" style="width: 50%">제목</th>
@@ -86,6 +91,7 @@
 							<th scope="col" style="width: 10%">바로가기</th>
 						</tr>
 					</thead>
+					
 					<tbody id="tableBody">
 						<tr>
 							<td colspan="5">검색결과가 없습니다.</td>
@@ -93,9 +99,11 @@
 					</tbody>
 				</table>
 			</div>
+			
+			
+			
 			<div class="mt-3 mb-3" style="text-align: center;">
-				<button type="button" class="btn btn-primary btn-lg"
-					onclick="moreContent()">more</button>
+				<button id="btnMore" type="button" class="btn btn-primary btn-lg sContent" onclick="moreItem()" >더보기</button>
 			</div>
 		</div>
 	</div>
@@ -106,32 +114,69 @@
 	var searchVal = "";
 	// 페이징 시작값;
 	var startIndex = 1;
-	//알림 객채
+	//알림 객체
 	var notification;
+	//data 객체
+	var oldItem;
+	var playliveSearch;
 	
-	var token = $("meta[name='_csrf']").attr("th:content");
-	var header = $("meta[name='_csrf_header']").attr("th:content");
-	
+	//라이브서치 요청
 	function liveSearchCall() {
 		searchVal = $("#searchWord").val();
+		if(!searchVal){
+			alert("검색조건이 설정되지 않았습니다.");
+			return false;
+		}
 		
+		$("#liveSearchCall").toggle();
+		$("#liveSearchStop").toggle();		
+		$("#load").toggle();
+		$(".sContent").attr("disabled", true); //설정
+		 
+		 tr_HTML = "<tr id='loadTr'>";
+		 tr_HTML +=	"<td colspan='5'>";
+		 tr_HTML +=	"<div id='load' style='text-align: center;'>";
+		 tr_HTML +=	"<img src='/resources/img/loading.gif' alt='loading' style='width: 35px;'>";
+		 tr_HTML +=	"<br>";
+		 tr_HTML +=	"<span>검색중입니다.</span>";
+		 tr_HTML +=	"</div>"
+		 tr_HTML +=	"</td>";
+		 tr_HTML +="</tr>";
+		 
+		 $("#tableBody").empty().append(tr_HTML);
+		 
 		if(ntfcPermission()){
 			webSocket.init({ url: '<c:url value="/live"/>' });
-			/* webSocket.sendEnter(searchVal); */
 		}
+		newItemSearch();
+		
 	}
+	
+	
+	function liveSearchStop() {
+		console.log("라이브 검색 중단");
+		$("#liveSearchStop").toggle();
+		$("#liveSearchCall").toggle();
+		
+		$("#loadTr").remove();
+
+		$(".sContent").attr("disabled", false); //해제
+		webSocket._socket.close(1000, "Work Stop");
+		clearInterval(playliveSearch);
+	}
+	//소켓 클래스
 	var webSocket = {
 		//시작함수
 		init : function(param) {
 			this._url = param.url;
 			this._initSocket();
 		},
-		
+
 		//새로운아이템 전송처리
 		sendChat : function(searchKeyWord, data) {
 			this._sendMessage(searchKeyWord, 'NEW_ITEM', data);
 		},
-		
+
 		//세션생성 처리
 		sendEnter : function(searchKeyWord) {
 			this._sendMessage(searchKeyWord, 'CREATE_LIVE_SESSION', '');
@@ -141,22 +186,17 @@
 		receiveMessage : function(msgData) {
 			// 새로운 아이템정보를 받은경우 처리
 			if (msgData.cmd == 'NEW_ITEM') {
-				
+
 			}
 			// 분기처리 확장용 추가 커맨드 관련.
 			else if (msgData.cmd == 'CREATE_LIVE_SESSION') {
-				
+
 			}
 		},
 		closeMessage : function(str) {
 			//연결끊김 처리
 		},
-		
-		//소캣닫기
-		disconnect : function() {
-			this._socket.close();
-		},
-		
+
 		//소캣열기
 		_initSocket : function() {
 			//소캣생성
@@ -164,21 +204,21 @@
 
 			//소캣생성 후 처리
 			this._socket.onopen = function(evt) {
-				console.log("onopen : " + evt);
+				//세션생성
+				webSocket.sendEnter(searchVal);
 			};
 
 			//메세지를 받고나서  처리
 			this._socket.onmessage = function(evt) {
-				console.log("onmessage: " + evt);
 				notificationFn(evt);
 			};
 
 			//소켓삭제 후 추가동작
 			this._socket.onclose = function(evt) {
-				console.log("socket.onclose: " + evt);
+				console.log("socket.onclose : " + evt.reason);
 			}
 		},
-		
+
 		//메세지 전송
 		_sendMessage : function(searchKeyWord, cmd, data) {
 			var msgData = {
@@ -186,7 +226,7 @@
 				cmd : cmd,
 				data : data
 			};
-			
+
 			//제이슨데이터 파싱
 			var jsonData = JSON.stringify(msgData);
 			//메세지 전송
@@ -209,15 +249,15 @@
 				return false;
 			}
 		});
-
 		return true;
 	}
 
+	//윈도우 메세지 팝업
 	function notificationFn(msg) {
-
+		var jdata = JSON.parse(msg.data)
 		// 데스크탑 알림
 		notification = new Notification("Joongo_Live_Search", {
-			body : msg
+			body : jdata.searchKeyWord+ "에 대한 새로운 검색결과를 찾았습니다."
 		});
 
 		notification;
@@ -229,6 +269,7 @@
 
 	}
 
+	//검색 요청
 	function searchBtn() {
 		searchVal = $("#searchWord").val();
 		tr_HTML = "";
@@ -239,7 +280,9 @@
 			data : {
 				searchWord : searchVal
 			},
+
 			success : function(data) {
+				oldItem = data;
 				tr_HTML += writeTr_Jongo(data);
 				$("#tableBody").empty().append(tr_HTML);
 			},
@@ -249,6 +292,7 @@
 		});
 	}
 
+	//컨텐츠 추가 화면 그리기
 	function writeTr_Jongo(data) {
 		var tbody = $("#tableBody");
 		tr_HTML = "";
@@ -260,6 +304,7 @@
 			if (!location) {
 				location = "미기재";
 			}
+			//seq값이 있는지 검사
 			if (data[i].hasOwnProperty('seq')) {
 				var url = "https://web.joongna.com/product/detail/"
 						+ data[i].seq;
@@ -285,7 +330,8 @@
 		return tr_HTML;
 	}
 
-	function moreContent() {
+	//더보기
+	function moreItem() {
 		startIndex++;
 		tr_HTML = "";
 		$.ajax({
@@ -305,32 +351,46 @@
 			}
 		});
 	}
-	
-	
+
 	function newItemSearch() {
-		tr_HTML = "";
-		console.log(searchVal);
+		
+		
+		//세션 갱신
 		$.ajax({
-			url : "/search/newItemSearch",
+			url : "/search/getItem",
 			type : 'POST',
-			async : false,
 			data : {
-				searchWord : searchVal,
-				startIndex : 1
-			},
-			success : function(data) {
-				if(data.length > 0){
-					sendChat(searchVal, data);
-				}
-				else{
-					return false
-				}
-			},
-			error : function(jqXHR, status, e) {
-				console.log(status + " : " + jqXHR.status);
-				console.log(jqXHR.responseText);
+				searchWord : searchVal
 			}
 		});
+		
+		//10초마다 반복.
+		playliveSearch = setInterval(function() {
+			tr_HTML = "";
+			console.log("계속 찾는중..");
+			$.ajax({
+				url : "/search/newItemSearch",
+				type : 'POST',
+				async : false,
+				data : {
+					searchWord : searchVal,
+					startIndex : 1
+				},
+				success : function(data) {
+					if (data.length > 0) {
+						webSocket._sendMessage(searchVal, 'NEW_ITEM', data);
+						tr_HTML += writeTr_Jongo(data);
+						$("#tableBody").append(tr_HTML);
+					} else {
+						return false
+					}
+				},
+				error : function(jqXHR, status, e) {
+					console.log(status + " : " + jqXHR.status);
+					console.log(jqXHR.responseText);
+				}
+			});
+		}, 10000);
 	}
-	
 </script>
+</html>

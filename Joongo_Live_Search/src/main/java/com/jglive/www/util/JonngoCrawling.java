@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jglive.www.vo.SearchOption;
 
-@Component
+@Component("joongo")
 public class JonngoCrawling {
 	
 	private SearchOption searchOption;
@@ -36,21 +36,21 @@ public class JonngoCrawling {
 		//내보낼 데이터
 		List<Map<String, Object>> newItemList = new ArrayList<Map<String,Object>>();
 		
-		
-		for (int i = 0, j = 0; i < oldItemList.size(); i++) {
-			
+		for (int i = 0, j = 0; i < 12 ; i++) {
 			Map<String,Object> oldItem  = oldItemList.get(j);
 			Map<String,Object> newItem  = items.get(i);
-			
+			if(i <6) {
+				j=i;
+			}
 			if(!newItem.get("title").equals(oldItem.get("title"))) {
-				//제목값이 다른경우 리스트를 추가.
+				System.out.println("####################################################################");
+				System.out.println(" new"+i+" : "+newItem.get("title") + "\n old"+j+" : "+ oldItem.get("title"));
 				newItemList.add(newItem);
 			}else {
 				//제목값이 같은경우 
 				j++;
 			}
 		}
-		
 		return newItemList;
 	}
 	
@@ -63,7 +63,7 @@ public class JonngoCrawling {
 		
 		final String URL = "https://search-api.joongna.com/v25/list/category";
 		Document doc;
-		String jsonString = "{\"startIndex\":"+searchOption.getStartIndex()+",\"searchStartTime\":\"\",\"filter\":{\"maxPrice\":"+searchOption.getMaxPrice()+",\"minPrice\":"+searchOption.getMinPrice()+",\"categoryDepth\":0,\"categorySeq\":0},\"searchQuantity\":"+searchOption.getQuantity()+",\"categoryName1\":\"\",\"categoryName2\":\"\",\"categoryName3\":\"\",\"quantity\":"+searchOption.getQuantity()+",\"firstQuantity\":"+searchOption.getQuantity()+",\"searchWord\":\""+searchOption.getSearchWord()+"\"}";
+		String jsonString = "{\"startIndex\":"+(searchOption.getStartIndex()-1)+",\"searchStartTime\":\"\",\"filter\":{\"maxPrice\":"+searchOption.getMaxPrice()+",\"minPrice\":"+searchOption.getMinPrice()+",\"categoryDepth\":0,\"categorySeq\":0},\"searchQuantity\":"+searchOption.getQuantity()+",\"categoryName1\":\"\",\"categoryName2\":\"\",\"categoryName3\":\"\",\"quantity\":"+searchOption.getQuantity()+",\"firstQuantity\":"+searchOption.getQuantity()+",\"searchWord\":\""+searchOption.getSearchWord()+"\"}";
 		String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
 		
 		try {

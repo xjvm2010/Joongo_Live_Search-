@@ -34,7 +34,7 @@ public class SearchJoongo {
 		// 검색기록 저장
 		searchOption.setUser_seq(0);
 		
-		memberService.SearchRecord(searchOption);
+//		memberService.SearchRecord(searchOption);
 		
 		System.out.print(searchOption.getSearchWord());
 
@@ -74,9 +74,13 @@ public class SearchJoongo {
 		joongo.setSearchOption(searchOption);
 
 		List<Map<String, Object>> newItemList = joongo.getNewItem(oldItemList);
+		
+		List<Map<String, Object>> newItemListSession= joongo.getItems();
+		
 		if (newItemList.size() > 0) {
-			session.setAttribute("oldItemList", newItemList);
+			session.setAttribute("oldItemList", newItemListSession);
 		}
+		 
 
 		return newItemList;
 	}
