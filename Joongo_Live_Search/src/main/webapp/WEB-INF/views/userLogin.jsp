@@ -37,13 +37,14 @@
                     <input type="password" class="form-control" id="floatingPassword" placeholder="비밀번호를 입력해주세요." name="pw">
                     <label for="floatingPassword">비밀번호를 입력해주세요.</label>
                 </div>
-                <button type="submit" class="btn mt-4 w-100 text-white" style="background-color: #000080">로그인하기</button>
+                <button onclick="submit" class="btn mt-4 w-100 text-white" style="background-color: #000080">로그인하기</button>
                 <p class="text-center mt-4"><a href="/userSign" class="link-secondary">회원가입 하러 가기</a></p>
-                <div th:if="${param.error}">
-		            <div class="alert alert-danger">
-		                	사용자ID 또는 비밀번호를 확인해 주세요.
-		            </div>
-       			</div>
+				<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
+					<font color="red">
+						<p>${sessionScope["SPRING_SECURITY_LAST_EXCEPTION"].message}</p>
+						<c:remove var="SPRING_SECURITY_LAST_EXCEPTION" scope="session" />
+					</font>
+				</c:if>
             </form>
         </div>
     </div>
@@ -53,6 +54,26 @@
 </body>
 
 <script type="text/javascript">
+function searchBtn() {
+	searchVal = $("#searchWord").val();
+	tr_HTML = "";
+	$.ajax({
+		url : "/search/getItem",
+		type : 'POST',
+		async : false,
+		data : {
+			searchWord : searchVal
+		},
+		success : function(data) {
+			tr_HTML += writeTr_Jongo(data);
+			$("#tableBody").empty().append(tr_HTML);
+		},
+		error : function(jqXHR, status, e) {
+			console.log(status + " : " + e);
+		}
+	});
+}
+
 	
 </script>
 </html>

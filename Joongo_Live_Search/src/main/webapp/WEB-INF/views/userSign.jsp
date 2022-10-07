@@ -40,14 +40,13 @@
 				<div class="form-group">
 					<label class="col-form-label" for="inputID">ID</label> 
 					<input type="text" class="form-control joinInput" placeholder="ID" id="inputID" name="id" maxlength="12" >
-					<div class="invalid-feedback" id="idMsg">이미 사용중이거나 탈퇴한 아이디 입니다.</div>
-					<div class="valid-feedback" id="idMsg2">굿 아이디!</div>
+					<div class="invalid-feedback" id="idMsg">ID는 필수 입력사항입니다.</div>
 				</div>
 				
 				<div class="form-group">
 					<label class="col-form-label" for="inputPW">Password</label>
 					<input type="password" class="form-control joinInput" placeholder="Password" id="inputPW" name="pw" maxlength="20" >
-					<div class="invalid-feedback" id="pwMsg">필수 입력사항입니다.</div>
+					<div class="invalid-feedback" id="pwMsg">password는 필수 입력사항입니다.</div>
 				</div>
 				
 				<div class="form-group">
@@ -65,8 +64,6 @@
 				<div class="form-group">
 					<label class="col-form-label" for="inputEmail">Email</label>
 					<input type="email" class="form-control userInput joinInput" placeholder="Email" id="inputEmail" name="email" maxlength="40" >
-					<div class="invalid-feedback" id="emailMsg">이미 사용중인 이메일 입니다.</div>
-					<div class="valid-feedback" id="emailMsg2">굿 이메일!</div>
 				</div>
 				
 				<div class="form-group">
@@ -76,7 +73,7 @@
 							<input type="radio" name="gender" autocomplete="off" value="남자" checked>남자
 						</label>
 						<label class="btn btn-primary">
-							<input type="radio" name="gender" autocomplete="off" value="여자" checked>여자
+							<input type="radio" name="gender" autocomplete="off" value="여자">여자
 						</label>
 					</div>
 				</div>
@@ -114,22 +111,80 @@
 var token = $("meta[name='_csrf']").attr("th:content");
 var header = $("meta[name='_csrf_header']").attr("th:content");
 
-function joinSubmit(){
-   
-	var queryString = $("#register_form").serializeArray();
-	
-	$.ajax({
-		url : "/join",
-		type : 'POST',
-		async : false,
-		data : queryString,
-		success : function() {
-			console.log("성공..");
-		}, error : function(e){
-			console.log("실패..");
+	//유효성 체크
+	function validation() {
+		
+		var id = "";
+		var pw = "";
+		var name = "";
+		var validation = "Y";
+			
+		//id 체크
+		if($("#inputID").val() == "") {
+			$('#idMsg').show();
+			validation = "N";
+		}else {
+			$('#idMsg').hide();
 		}
-	});
-}
+		
+		//pw 체크
+		if($("#inputID").val() == "") {
+			$('#pwMsg').show();
+			validation = "N";
+		}else {
+			$('#pwMsg').hide();
+		}
+		
+		if($("#inputPW").val() != $("#inputPWCK").val()) {
+			$('#pwckMsg').show();
+			validation = "N";
+		}else {
+			$('#pwckMsg').hide();
+		}
+		
+		//이름 체크
+		if($("#inputName").val() == "") {
+			$('#nameMsg').show();
+			validation = "N";
+		}else {
+			$('#nameMsg').hide();
+		}
+		
+		if(validation == "Y") {
+			return true;
+		}else {
+			alert("입력 정보를 다시 확인 해주세요.")
+			return false;
+		}
+	}
+
+
+	//가입 submit
+	function joinSubmit(){
+		
+		if(validation()) {
+			var queryString = $("#register_form").serializeArray();
+			
+			$.ajax({
+				url : "/join",
+				type : 'POST',
+				async : false,
+				data : queryString,
+				success : function() {
+					console.log("성공..");
+					alert("축하합니다 가입이 완료 되었습니다.")
+					window.location.href = "/";
+				}, error : function(e){
+					console.log("실패..");
+				}
+			});
+		}else {
+			return false;
+		}
+	}
+
+	
+
 
 </script>
 </html>

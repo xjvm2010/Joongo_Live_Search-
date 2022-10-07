@@ -57,6 +57,7 @@
 					 <sec:authorize access="isAuthenticated()">
 					 	<a class="dropdown-item"/><%=name %> 님</a>
 					 	<a class="dropdown-item" href="<c:url value="/logout"/>">Logout</a>
+					 	<a class="dropdown-item" href="<c:url value="/userInfo"/>">History</a>
 					 </sec:authorize>
 					<a class="dropdown-item" href="/userSign">Join</a>
 				</div>
@@ -108,6 +109,8 @@
 	//알림 객채
 	var notification;
 	
+	var token = $("meta[name='_csrf']").attr("th:content");
+	var header = $("meta[name='_csrf_header']").attr("th:content");
 	
 	function liveSearchCall() {
 		searchVal = $("#searchWord").val();
@@ -230,7 +233,7 @@
 		searchVal = $("#searchWord").val();
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getContent",
+			url : "/search/getItem",
 			type : 'POST',
 			async : false,
 			data : {
@@ -286,7 +289,7 @@
 		startIndex++;
 		tr_HTML = "";
 		$.ajax({
-			url : "/search/getMoreContent",
+			url : "/search/getMoreItem",
 			type : 'POST',
 			async : false,
 			data : {
@@ -302,8 +305,7 @@
 			}
 		});
 	}
-</script>
-</html>}
+	
 	
 	function newItemSearch() {
 		tr_HTML = "";
@@ -332,4 +334,3 @@
 	}
 	
 </script>
-</html>

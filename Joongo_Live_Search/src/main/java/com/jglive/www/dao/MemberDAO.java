@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.jglive.www.vo.CustomUserDetails;
 import com.jglive.www.vo.MemberVO;
+import com.jglive.www.vo.SearchOption;
 
 @Repository
 public class MemberDAO {
@@ -17,13 +18,16 @@ public class MemberDAO {
 	
 	PasswordEncoder bcryptPasswordEncoder;
 	
-	public MemberVO register(MemberVO memVO) {
-		SqlSession.insert("memberMapper.register",memVO);
-		return SqlSession.selectOne("user_Mapper.login", memVO);
+	public int register(MemberVO memVO) {
+		return SqlSession.insert("memberMapper.register",memVO);
 	}
 	
 	public CustomUserDetails loadUserByUserId(String id) {
 		return SqlSession.selectOne("memberMapper.loadUserByUserId", id);
+	}
+	
+	public int searchRecord(SearchOption searVO) {
+		return SqlSession.insert("memberMapper.searchRecord",searVO);
 	}
 
 }

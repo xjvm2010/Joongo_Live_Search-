@@ -1,6 +1,7 @@
 package com.jglive.www.spring.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.CustomAutowireConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
 @Configuration
@@ -23,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	AuthenticationProvider UserAuthProvider;
+	
 
 	// 비밀번호 BCrypt 암호화를 위한 Bean 등록
     @Bean
@@ -48,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// 로그인 폼 사용
 					// 로그인 URL 설정 이 설정이 없으면 스프링 시큐리티에서 제공해주는 로그인 페이지로 이동
 					.loginPage("/userLogin")				//로그인 페이지
-					.defaultSuccessUrl("/")		//로그인 성공시 이동									
+					.defaultSuccessUrl("/")					//로그인 성공시 이동									
 					.failureUrl("/userLogin") 				//로그인 실패시 이동
 					.usernameParameter("id")				//아이디 파라미터명 설정
 		            .passwordParameter("pw")				//패스워드 파라미터명 설정
@@ -75,6 +78,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
     	auth.authenticationProvider(UserAuthProvider);
+    }
+    
+    @Bean
+    public AuthenticationSuccessHandler LoginSuccessHandler() {
+    	return new LoginSuccessHandler();
     }
     
 

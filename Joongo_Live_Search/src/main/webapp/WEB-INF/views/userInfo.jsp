@@ -62,20 +62,13 @@
 					</div>
 				</div>
 				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th scope="col">Type</th>
-							<th scope="col">Column heading</th>
-							<th scope="col">Column heading</th>
-							<th scope="col">Column heading</th>
-						</tr>
-					</thead>
 					<tbody>
 						<tr class="table-active">
-							<th scope="row">Active</th>
-							<td>Column content</td>
-							<td>Column content</td>
-							<td>Column content</td>
+							<th scope="row">순서</th>
+							<td>제목</td>
+							<td>가격</td>
+							<td>거래희망 지역</td>
+							<td>바로가기</td>
 						</tr>
 					</tbody>
 				</table>

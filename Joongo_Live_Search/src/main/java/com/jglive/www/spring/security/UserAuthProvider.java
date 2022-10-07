@@ -32,10 +32,10 @@ public class UserAuthProvider implements AuthenticationProvider {
 		String username = (String) authentication.getPrincipal();
 		String password = (String) authentication.getCredentials();
 		
-		
+	
 		//사용자가 입력한 아이디로 사용자의 정보를 가져옴
 		CustomUserDetails userVo = (CustomUserDetails)userSerivce.loadUserByUsername(username);
-		 
+		
 		//사용자 입력한 비밀번호와 실제 DB에있는 값이 일치하는지 검사. 맞지않는경우 예외처리
 	    if(!passwordEncoder.matches(password, userVo.getPassword())) {
 	       throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");

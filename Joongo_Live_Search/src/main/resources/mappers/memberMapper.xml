@@ -32,5 +32,41 @@
 		WHERE 
 			id = #{id}
 	</select>
-
+	
+	<insert id="searchRecord">
+    INSERT INTO jongo_live_search (	
+    			user_seq 
+   				, startIndex 
+   				, searchStartTime
+   				, filter
+   				, searchQuantity
+   				, quantity
+   				, firstQuantity
+   				, searchWord
+   				, categoryName1
+   				, categoryName2
+   				, categoryName3
+   				, maxPrice
+   				, minPrice
+   				, categoryDepth
+   				, categorySeq)
+   
+    	VALUES(    
+	    		#{user_seq} 
+	             , #{startIndex}
+	             , #{searchStartTime}
+	             , #{filter}
+	             , #{searchQuantity}
+	             , #{quantity}
+	             , #{firstQuantity} 
+	             , #{searchWord} 
+	             , #{categoryName1} 
+	             , #{categoryName2} 
+	             , #{categoryName3} 
+	             , #{maxPrice} 
+	             , #{minPrice} 
+	             , #{categoryDepth} 
+	             , #{categorySeq} )
+    </insert>
+	
 </mapper>

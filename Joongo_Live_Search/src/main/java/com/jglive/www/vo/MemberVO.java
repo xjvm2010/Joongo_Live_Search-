@@ -1,5 +1,8 @@
 package com.jglive.www.vo;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class MemberVO {
 
 	private int    seq;
